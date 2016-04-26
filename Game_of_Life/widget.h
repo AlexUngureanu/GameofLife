@@ -48,7 +48,7 @@ private:
     GoL_Controller controller;
     const float board_top_left_x = 60;
     const float board_top_left_y = 120;
-    const float cell_length = 5;
+    const float cell_length = 3;
 
     void draw_board(QPainter &p);
     void draw_cells(QPainter &p);

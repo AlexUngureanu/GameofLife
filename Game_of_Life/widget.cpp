@@ -106,8 +106,8 @@ void Widget::draw_cells(QPainter &p)
 void Widget::fill_cell(Point cellCenter, QPainter &p)
 {
     p.setPen(Qt::blue);
-    float x_coord = cellCenter.get_x() - cell_length / 2  + board_top_left_x;
-    float y_coord = cellCenter.get_y() - cell_length / 2 + board_top_left_y;
+    float x_coord = cellCenter.get_x() - cell_length / 2 + 1 + board_top_left_x;
+    float y_coord = cellCenter.get_y() - cell_length / 2 + 1 + board_top_left_y;
     QRectF rect = QRectF(x_coord, y_coord, cell_length, cell_length);
     p.drawRect(rect);
     p.fillRect(rect, Qt::blue);

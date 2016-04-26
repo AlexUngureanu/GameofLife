@@ -153,13 +153,16 @@ void GoL_Controller::compute_next_generation_state(Cell cell, State state)
     }
     if (is_cell_in_tree(cell, root)) {
         if (numNeighbors == 2 || numNeighbors == 3) {
-            insert_cell(cell, next_root);
-
+            if(!is_cell_in_tree(cell, next_root)) {
+                insert_cell(cell, next_root);
+            }
         }
     }
     else {
         if (numNeighbors == 3) {
-            insert_cell(cell, next_root);
+            if(!is_cell_in_tree(cell, next_root)) {
+                insert_cell(cell, next_root);
+            }
         }
     }
     if (state == alive) {
