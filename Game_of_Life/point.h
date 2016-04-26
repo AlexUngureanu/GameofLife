@@ -7,7 +7,7 @@ using namespace std;
 class Point {
 public:
     Point();
-    Point (int x_coord, int y_coord);
+    Point(int x_coord, int y_coord);
 
     int get_x();
     int get_y();

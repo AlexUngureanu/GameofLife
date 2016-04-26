@@ -5,28 +5,30 @@
 using namespace std;
 #include "Cell.h"
 #include "Point.h"
+#include "Cell_Dynamic_Array.h"
 
 class WorldState {
 public:
+    WorldState();
     WorldState(int generation);
-    WorldState(Cell alive_cells[], int generation);
-    operator=(const Worldstate &source);
+    WorldState(Cell alive_cells[], int generation, Cell sentinel);
+    ~WorldState();
+    WorldState operator =(const WorldState &source);
 
     Cell *get_cells();
+    Cell cell_at_index(int i);
     Point *get_cells_coordinates();
     int get_age();
     void destroy();
-    void get_number_of_cells();
-    void add(Cell cell);
+    int get_number_of_cells();
+    bool add(Cell cell);
 
 private:
-    Cell *cells;
-    int numCells;
+    Cell_Dynamic_Array cellsDA;
     int age;
-    void expand();
-    static const int INITIAL_CAPACITY = 10;
-    int capacity;
 
+    bool is_in(Cell cell);
 };
+
 
 #endif // WORLDSTATE_H

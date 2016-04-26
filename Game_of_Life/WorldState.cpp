@@ -2,45 +2,47 @@
 #include "WorldState.h"
 using namespace std;
 
+WorldState::WorldState()
+{
+
+}
+
 WorldState::WorldState(int generation)
 {
-    numCells = 0;
-    cells = new int [INITIAL_CAPACITY];
-    capacity = INITIAL_CAPACITY;
     age = generation;
 }
 
 WorldState::WorldState(Cell alive_cells[], int generation, Cell sentinel)
 {
-    numCells = 0;
-    cells = new int[INITIAL_CAPACITY];
-    capacity = INITIAL_CAPACITY;
+    int numCells = 0;
 
-    while (alive_cells[numCells].get_coordinates().is_equal
+    while (!alive_cells[numCells].get_coordinates().is_equal
            (sentinel.get_coordinates())) {
-        if (numCells == capacity) {
-            expand();
-        }
-        cells[numCells] = alive_cells[numCells];
-        numCells ++;
+        cellsDA.add(alive_cells[numCells]);
+        numCells++;
     }
 
     age = generation;
 }
 
-Cell *WorldState::get_cells()
+WorldState::~WorldState()
 {
-    return cells[];
+
 }
 
-Point *WorldState::get_cells_coordinates()
+Cell *WorldState::get_cells()
 {
-    Point points[numCells];
-    for (int i = 0; i < numCells; i++) {
-        points[i] = cells[i].get_coordinates();
-    }
-    return points[];
+    return cellsDA.get_list();
 }
+
+//Point *WorldState::get_cells_coordinates()
+//{
+//    Point points[numCells];
+//    for (int i = 0; i < numCells; i++) {
+//        points[i] = cells[i].get_coordinates();
+//    }
+//    return points;
+//}
 
 int WorldState::get_age()
 {
@@ -49,50 +51,48 @@ int WorldState::get_age()
 
 void WorldState::destroy()
 {
-    delete [] cells;
+    cellsDA.destroy();
 }
 
-void WorldState::expand()
+int WorldState::get_number_of_cells()
 {
-    Cell *new_cells = new Cell[capacity * 2];
-    for (int i = 0; i < numCells; i++) {
-        new_cells[i] = cells[i];
-    }
-    delete [] cells;
-    cells = new_cells;
-    capacity *= 2;
+    return cellsDA.get_number_of_cells();
 }
 
-void WorldState::get_number_of_cells() {
-    return numCells;
-}
-
-WorldState::operator =(const WorldState &source)
+WorldState WorldState::operator =(const WorldState &source)
 {
-    Cells *new_cells;
     if(this != &source) {
         return *this;
     }
 
-    capacity = source.capacity;
-    numCells = source.numCells;
-    new_cells = new Cells[capacity];
     age = source.age;
+    destroy();
 
-    for (int i = 0; i < capacity; i++) {
-        new_cells[i] = source.cells[i];
-    }
-    delete cells;
-    cells = new_cells;
+    cellsDA = source.cellsDA;
+
     return *this;
 }
 
-void WorldState::add(Cell cell)
+bool WorldState::add(Cell cell)
 {
-    if (numCells == capacity) {
-        expand();
+    if (is_in(cell)) {
+        return false;
     }
-    cells[numCells] = cell;
-    numCells ++;
+    cellsDA.add(cell);
+    return true;
 }
 
+bool WorldState::is_in(Cell cell)
+{
+    if (cellsDA.is_in(cell)) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+Cell WorldState::cell_at_index(int i)
+{
+    return cellsDA.get_cell_at_index(i);
+}

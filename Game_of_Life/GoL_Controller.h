@@ -8,36 +8,36 @@ using namespace std;
 #include "Cell.h"
 #include "Point.h"
 
+enum State { alive, dead };
+
 class GoL_Controller {
 public:
-    GoL_Controller(int squareLength);
-    GoL_Controller(int squareLength, int percentage);
-    GoL_Controller(int squareLength, Cell cells[]);
+    GoL_Controller();
+
     ~GoL_Controller();
 
-    void reset_world();
-    void reset_world(Cell cells[]);
-    void reset_with_random_population();
-    void reset_with_new_size(int squareLength);
+    void reset_world_random(int squareLength, int percentage);
 
-    WorldState get_world_state();
-    WorldState get_next_world_state();
+    WorldState &get_world_state();
+    void next_world_state();
     void destroy_current_tree();
+    void destroy_world_state();
 
 private:
     Node *root;
     Node *next_root;
     WorldState current_world_state;
     int age;
+    int size;
 
     void compute_next_generation(Cell cells[], int numCells);
-    WorldState get_world_state_tree(Node *node);
-    void get_tree_map(Cell cells[]);
-    void compute_next_generation_state(Cell cell);
+    void update_world_state(Node *node);
+    void build_tree_map(Cell cells[], int population);
+    void compute_next_generation_state(Cell cell, State state);
     void post_order_delete(Node *node);
-    bool insert(Node *parent, Node *node);
-    bool insert_cell(Point p);
+    void insert_cell(Cell cell, Node *node);
+    void random_generate_specified_population(int population);
+    bool is_cell_in_tree(Cell cell, Node *node);
 };
-
 
 #endif // GOL_CONTROLLER_H

@@ -1,5 +1,7 @@
 #include "Node.h"
+
 #include <iostream>
+#include <cassert>
 using namespace std;
 
 Node::Node()
@@ -11,7 +13,7 @@ Node::Node()
     se = NULL;
 }
 
-Node::Node(int node_size, int top_left_coord, int bot_right_coord)
+Node::Node(int node_size, Point top_left_coord, Point bot_right_coord)
 {
     size = node_size;
     nw = NULL;
@@ -20,9 +22,6 @@ Node::Node(int node_size, int top_left_coord, int bot_right_coord)
     se = NULL;
     top_left.set(top_left_coord);
     bot_right.set(bot_right_coord);
-    if (node_size == 1) {
-        cell = Cell(top_left);
-    }
 }
 
 
@@ -41,16 +40,13 @@ Node *Node::get_region(Region reg)
     if (reg == NORTH_WEST) {
         return nw;
     }
-
-    else if (reg == SOUTH_WEST) {
-        return sw;
-    }
-
-    else if (reg == NORTH_EAST) {
+    if (reg == NORTH_EAST) {
         return ne;
     }
-
-    else {
+    if (reg == SOUTH_WEST) {
+        return sw;
+    }
+    if (reg == SOUTH_EAST) {
         return se;
     }
 }
@@ -66,16 +62,13 @@ void Node::set_region(Region reg, Node *n)
     if (reg == NORTH_WEST) {
         nw = n;
     }
-
-    else if (reg == SOUTH_WEST) {
-        sw = n;
-    }
-
-    else if (reg == NORTH_EAST) {
+    if (reg == NORTH_EAST) {
         ne = n;
     }
-
-    else {
+    if (reg == SOUTH_WEST) {
+        sw = n;
+    }
+    if(reg == SOUTH_EAST) {
         se = n;
     }
 }
@@ -87,29 +80,6 @@ bool Node::is_leaf()
     }
 
     return false;
-}
-
-Region *Node::get_available_regions()
-{
-    static Region regions[4] = {};
-    int pos = 0;
-    if (nw != NULL) {
-        regions[pos] = NORTH_WEST;
-        pos++;
-    }
-    if (sw != NULL) {
-        regions[pos] = SOUTH_WEST;
-        pos++;
-    }
-    if (ne != NULL) {
-        regions[pos] = NORTH_EAST;
-        pos++;
-    }
-    if (se != NULL) {
-        regions[pos] = SOUTH_EAST;
-        pos++;
-    }
-    return regions;
 }
 
 Cell Node::get_cell()
@@ -124,17 +94,24 @@ Cell Node::get_cell()
 
 Region Node::get_region_for_point(Point p)
 {
-    if (p.get_x() <= middle(x) and p.get_y() <= middle_y()) {
-        return SOUTH_WEST;
-    }
-    else if (p.get_x() <= middle(x)) {
+    if (p.get_x() <= middle_x() && p.get_y() <= middle_y() && p.get_x() >=
+            top_left.get_x() && p.get_y() >= top_left.get_y()) {
         return NORTH_WEST;
     }
-    else if (p.get_y() <= middle_y()) {
+    else if (p.get_x() <= middle_x() && p.get_y() > middle_y() && p.get_x()
+             >= top_left.get_x() && p.get_y() <= bot_right.get_y()) {
+        return SOUTH_WEST;
+    }
+    else if (p.get_x() > middle_x() && p.get_x() <= bot_right.get_x() &&
+             p.get_y() <= middle_y() && p.get_y() >= top_left.get_y()) {
+        return NORTH_EAST;
+    }
+    else if (p.get_x() > middle_x() && p.get_x() <= bot_right.get_x() &&
+             p.get_y() > middle_y() && p.get_y() <= bot_right.get_y()) {
         return SOUTH_EAST;
     }
     else {
-        return NORTH_EAST;
+        return NONE;
     }
 }
 
@@ -147,3 +124,51 @@ int Node::middle_y()
 {
     return (top_left.get_y() + bot_right.get_y()) / 2;
 }
+
+void Node::set_cell(Cell c)
+{
+    cell = c;
+}
+
+Point Node::get_top_left_region(Region region)
+{
+    Point p;
+    if (region == NORTH_WEST) {
+        p.set(top_left);
+    }
+    else if (region == SOUTH_WEST) {
+        p.set_x(top_left.get_x());
+        p.set_y((top_left.get_y() + bot_right.get_y() - 1) / 2);
+    }
+    else if (region == NORTH_EAST) {
+        p.set_x((top_left.get_x() + bot_right.get_x() + 1) / 2);
+        p.set_y(top_left.get_y());
+    }
+    else if (region == SOUTH_EAST) {
+        p.set_x((top_left.get_x() + bot_right.get_x() + 1) / 2);
+        p.set_y((top_left.get_y() + bot_right.get_y() - 1) / 2);
+    }
+    return p;
+}
+
+Point Node::get_bot_right_region(Region region)
+{
+    Point p;
+    if (region == NORTH_WEST) {
+        p.set_x((top_left.get_x() + bot_right.get_x() - 1) / 2);
+        p.set_y((top_left.get_y() + bot_right.get_y() + 1) / 2);
+    }
+    else if (region == SOUTH_WEST) {
+        p.set_x((top_left.get_x() + bot_right.get_x() - 1) / 2);
+        p.set_y(bot_right.get_y());
+    }
+    else if (region == NORTH_EAST) {
+        p.set_x(bot_right.get_x());
+        p.set_y((top_left.get_y() + bot_right.get_y() + 1) / 2);
+    }
+    else if (region == SOUTH_EAST){
+        p.set(bot_right);
+    }
+    return p;
+}
+
