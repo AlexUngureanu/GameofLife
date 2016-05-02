@@ -1,0 +1,170 @@
+## Documentation for HW6 Project
+## Conway's Game of Life
+## Alexandru C. Ungureanu
+## April 27th, 2016
+
+Conway's Game of Life
+
+
+I. PURPOSE
+
+        -> creating a Conway's Game of Life that simulates the evolution of
+           live cells population over time; the game starts with a random
+           initial population that evolves over generations by the following
+           rules:
+
+                    * a live cell with more than 4 living neighbors dies
+                      (overpopulation)
+
+                    * a live cell with less than 3 living neighbors dies
+                      (underpopulation)
+
+                    * a live cell with 3 or 4 living neighbors stays alive
+
+                    * a dead cell with exactly 3 living neighbors becomes a live
+                      cells (reproduction)
+
+
+II. FILES USED
+
+        -> .h files: header files used to declare the classes of the program:
+
+                    * Point.h: used to model a 2D point: a point has two integer
+                      coordinates: an x-coordinate and a y-coordinateS
+
+                    * Cell.h: used to model a living cell: a cell is centered at
+                      a point
+
+                    * Node.h: used to model a node in a Quadtree: a node is
+                      basically a 2^k X 2^k board and has 2 points that set the
+                      boundaries: the point corresponding to the top-left corner
+                      of the node, and the point corresponding to the
+                      bottom-right corner; it also has 4 children: northwest,
+                      southwest, northeast, southeast, corresponding to the four
+                      regions of the node; a leaf in the Quadtree is a 1 X 1
+                      square and contains a living cell
+
+                    * Cell_Dynamic_Array.h: used to model a dynamic array of
+                      cells, that expands when needed
+
+                    * WorldState.h: used to model a state of one generation,
+                      contains a dynamic array that has the living cells of that
+                      particular generation
+
+                    * GoL_Controller.h: class that contains two trees of nodes
+                      (one that depicts the current generation's board, and one
+                      that depicts the next generation's board) and a worldstate
+                      for the current generation; responsible for computing the
+                      next generation of the game
+
+                    * widget.h: used to create the GUI for the game: the board
+                      with cells and the buttons used to run the game; uses the
+                      widgets library to design the interface and the events
+                      required for running the game: pressing a button,
+                      computing and drawing the next generation after a specific
+                      time
+
+        -> .cpp files: source files used to define the methods of the previously
+           mentioned classes: Point.cpp, Cell.cpp, Node.cpp, WorldState.cpp,
+           Cell_Dynamic_Array.cpp, GoL_Controller.cpp, widget.cpp; also a main
+           file, main.cpp, used to run the program using an instance of the
+           class Widget
+
+
+III. GUI AND COMPILING
+
+        -> the GUI was created using the QT Creator framework of the Qt IDE
+
+        -> compilation is done using the Microsoft Visual C++ compiler, directly
+           from the IDE; Run button of the IDE to open the window-application
+
+
+IV. DATA STRUCTURES AND ABSTRACT DATA TYPES
+
+        -> the data structures used in this application are:
+
+                * a dynamic array of cells; can perform basic operations: adding
+                  to an array, verifying if a cell is in the array, returning
+                  the array, expanding the array, or returning the number of
+                  cells in the array; it is the underlying data structure for
+                  the WorldState ADT
+
+                * a Quadtree of 2^k X 2^k boards in which the children of a node
+                  are the four regions of the board corresponding to the node;
+                  the methods of the Node class allow for: returning the child
+                  that corresponds to a given region, returning the name of the
+                  region where a point in the 2D plane is, returning the
+                  boundaries of a given region, setting a region to correspond
+                  to a given node, verifying if a node is a leaf in the tree,
+                  or returning or setting the cell of a node (if the node is a
+                  leaf); used for the two trees in the GoL_Controller class that
+                  model the current and next state of the board at a particular
+                  generation
+
+        -> the abstract data types of the node:
+
+                * a worldstate: contains the state of a particular generation;
+                  the state of the generation is given by the list and position
+                  of living cells of that particular generation; cells are
+                  stored in a dynamic array of cells; operations: adding a cell
+                  to the worldstate, returning the list of cells, returning a
+                  particular cell (stored at an index), checking if a cell is
+                  part of the worldstate (if the cell is alive), returning the
+                  points that represent the centers of the cells, destroying
+                  (emptying) a worldstate to reinitialize it
+
+                * a controller: main responsibility is computing the next
+                  generation of the game by updating the worldstate of living
+                  cells and the state of the tree-board; main operations:
+                  returning the current worldstate, computing the next
+                  generation, resetting the board (size and percentage of living
+                  cells to be randomized at the beginning of the game)
+
+V. ALGORITHMS
+
+        -> algorithm for initializing the game:
+
+                1. Create a new current-generation "empty" tree
+                2. Create a new empty worldstate
+                3. Randomly generate a list of living cells based on the given
+                   percentage of cells of the board that must be alive. Add each
+                   generated cell to the current worldstate.
+                4. Construct the current tree based on the worldstate. For each
+                   living cell in the worldstate, construct a chain of nodes
+                   that "lead" to that cell, which is associated with a tree
+                   leaf. Thus, only nodes that contain living cells in their
+                   boards will be inserted in the tree!
+                5. Initialize the next generation's tree to be "empty".
+
+        -> algorithm for computing the next generation:
+
+                1. For each cell in the current worldstate, count the number of
+                   neighbors that are alive. To do that, search if the
+                   neighboring cells' associated leafs are in the current tree
+                   (that contains only the live cells of the board)
+
+                2. If the cell will be alive in the next generation, insert its
+                   associated leaf in the next generation's tree by creating a
+                   "chain" of nodes that "lead" to that leaf.
+
+                3. Since the live cell's neighbors are potential living cells
+                   in the next generation, count the number of live cells of
+                   each neighbor as mentioned in step 1.
+
+                4. Apply step 2 for the neighbor cells that will be alive in the
+                   next generation, but don't repeat steps 3 and 4 for the
+                   neighbor's neighbors (if those neighbors are to be alive,
+                   they will be added to the next tree by performing the
+                   algorithm for the other living cells in the worldstate that
+                   also have those as neighbors).
+
+                5. Empty the current worldstate
+
+                6. Update the worldstate to the next generation by adding each
+                   living cells associated with the leaves of the next tree
+                   to the worldstate.
+
+                7. Update the current root to become the next root (update to
+                   next generation) and make the next root empty (update
+                   complete).
+
